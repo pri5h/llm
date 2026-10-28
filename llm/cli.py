@@ -178,7 +178,14 @@ def _run_chat(
     end_token = "!end"
 
     while True:
-        prompt = click.prompt("", prompt_suffix="> " if not in_multi else "")
+        try:
+            prompt = click.prompt("", prompt_suffix="> " if not in_multi else "")
+        except click.Abort as ex:
+            # Click wraps both EOFError (Ctrl+D) and KeyboardInterrupt (Ctrl+C)
+            # in Abort. Treat EOF as a normal request to leave the chat loop.
+            if isinstance(ex.__cause__, EOFError):
+                break
+            raise
         fragments = []
         attachments = []
         if argument_fragments:

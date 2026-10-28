@@ -461,3 +461,14 @@ def test_chat_fragments(tmpdir):
     ).output
     assert '"prompt": "one' in output
     assert '"prompt": "two"' in output
+
+def test_chat_eof_exits_cleanly(mock_model):
+    result = CliRunner().invoke(
+        llm.cli.cli,
+        ["chat", "-m", "mock"],
+        input="",
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    assert "Aborted!" not in result.output
+
